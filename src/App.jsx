@@ -1,14 +1,16 @@
 import "./App.css";
 import Dashboard from "./pages/Dashboard";
+import Forms from "./pages/Forms";
+import NotFound from "./pages/NotFound";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   return (
-    <>
-      <div>
-        <h1>Formulario de películas</h1>
-        <Dashboard />
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/forms" element={<Forms />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

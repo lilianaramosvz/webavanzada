@@ -1,22 +1,44 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import forms from "../styles/pages/Forms.module.css";
+import { buscarPelicula } from "../services/service";
 
 const Forms = () => {
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    nombreUsuario: "",
+    titulo: "",
+    anio: "",
+    tipo: "",
+    genero: "",
+  });
   const [movie, setMovie] = useState(null);
-
-  const handleSubmit = (e) => {
+  const [cargando, setCargando] = useState(false);
+  const [error, setError] = useState(null);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí pondre la lógica para buscar la película usando la api
-    // ejemplo con lalaland
-    setMovie({
-      Title: "La La Land",
-      Year: "2016",
-      Director: "Damien Chazelle",
-      Plot: "A jazz musician and an aspiring actress fall in love while pursuing their dreams in Los Angeles.",
-      Poster: "https://via.placeholder.com/400x250",
-    });
+    setCargando(true);
+    setError(null);
+    setMovie(null);
+    try {
+      const { nombreUsuario, titulo, anio, tipo, genero } = formData;
+      const data = await buscarPelicula(
+        nombreUsuario,
+        titulo,
+        anio,
+        tipo,
+        genero,
+      );
+      setMovie(data);
+    } catch (err) {
+      console.log(formData);
+      setError("Not found. Please try different filters.");
+    } finally {
+      setCargando(false);
+    }
   };
 
   return (
@@ -33,61 +55,100 @@ const Forms = () => {
       <h2 className={forms.title}>Find your favorite movie or series</h2>
 
       <form className={forms.form} onSubmit={handleSubmit}>
-        <label className={forms.label} htmlFor="title">
+        <label className={forms.label} htmlFor="titulo">
           Title:
         </label>
-        <input type="text" placeholder="Movie/Series title" />
+        <input
+          id="titulo"
+          type="text"
+          name="titulo"
+          placeholder="Movie/Series title"
+          value={formData.titulo}
+          onChange={handleChange}
+          required
+        />
 
-        <label className={forms.label} htmlFor="releaseDate">
+        <label className={forms.label} htmlFor="anio">
           Release Year:
         </label>
-        <input type="number" placeholder="Release year" />
+        <input
+          id="anio"
+          type="number"
+          name="anio"
+          placeholder="Release year"
+          value={formData.anio}
+          onChange={handleChange}
+        />
 
-        <label className={forms.label} htmlFor="type">
+        <label className={forms.label} htmlFor="tipo">
           Type:
         </label>
-        <select id="type">
+        <select
+          id="tipo"
+          name="tipo"
+          value={formData.tipo}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
           <option value="movie">Movie</option>
-          <option value="series">Series</option>
+          <option value="serie">Series</option>
         </select>
 
-        <label className={forms.label} htmlFor="Genero">
+        <label className={forms.label} htmlFor="genero">
           Genre:
         </label>
-        <select id="Genero">
+        <select
+          id="genero"
+          name="genero"
+          value={formData.genero}
+          onChange={handleChange}
+        >
           <option value="">Select an option</option>
-          <option value="action">Action</option>
-          <option value="comedy">Comedy</option>
-          <option value="drama">Drama</option>
-          <option value="horror">Horror</option>
-          <option value="sci-fi">Science Fiction</option>
-          <option value="romance">Romance</option>
-          <option value="thriller">Thriller</option>
-          <option value="animation">Animation</option>
+          <option value="Action">Action</option>
+          <option value="Comedy">Comedy</option>
+          <option value="Drama">Drama</option>
+          <option value="Horror">Horror</option>
+          <option value="Science Fiction">Science Fiction</option>
+          <option value="Romance">Romance</option>
+          <option value="Thriller">Thriller</option>
+          <option value="Animation">Animation</option>
         </select>
 
-        <label className={forms.label} htmlFor="Nombre">
+        <label className={forms.label} htmlFor="nombreUsuario">
           Your Name:
         </label>
-        <input type="text" placeholder="Enter your name" />
+        <input
+          id="nombreUsuario"
+          type="text"
+          name="nombreUsuario"
+          placeholder="Enter your name"
+          value={formData.nombreUsuario}
+          onChange={handleChange}
+          required
+        />
 
-        <button className={forms.button}>Search</button>
+        <button className={forms.button} disabled={cargando}>
+          {cargando ? "Searching..." : "Search"}
+        </button>
       </form>
+
+      {error && <p style={{ color: "red", marginTop: "1rem" }}> {error}</p>}
 
       {movie && (
         <div className={forms.movieCard}>
-          <img src={movie.Poster} alt={movie.Title} className={forms.poster} />
-
           <div className={forms.movieInfo}>
-            <h3>{movie.Title}</h3>
-
+            <h3 className={forms.movieTitulo}>{movie.titulo}</h3>
             <div className={forms.details}>
-              <span>Year: {movie.Year}</span>
-              <span>Director: {movie.Director}</span>
+              <p>
+                <strong>Release Year:</strong> {movie.anio}
+              </p>
+              <p>
+                <strong>Type:</strong> {movie.tipo}
+              </p>
+              <p>
+                <strong>Genre:</strong> {movie.genero}
+              </p>
             </div>
-
-            <p>{movie.Plot}</p>
           </div>
         </div>
       )}

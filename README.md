@@ -42,8 +42,8 @@ npm run dev
 
 Make sure the **Spring Boot backend server is running** before using the application.
 
-The frontend communicates with the backend at the following endpoint:
-
-http://localhost:8080/api/movies/search
-
+The frontend communicates with the backend at this repository:
+---
+https://github.com/delsa21/formulario_back_end.git
+---
 If the backend server is not running, the movie search functionality will not work.
